@@ -10,8 +10,9 @@ OPTS="$OPTS -drive if=pflash,format=raw,file=ovmf.flash"
 # The hard disk is exposed to the guest as a virtio-block device. OVMF has a
 # driver stack that supports such a disk. We specify this disk as first boot
 # option. OVMF recognizes the boot order specification.
-OPTS="$OPTS -drive id=disk0,if=none,format=qcow2,file=app.img"
-OPTS="$OPTS -device virtio-blk-pci,drive=disk0,bootindex=0"
+# OPTS="$OPTS -drive id=disk0,if=none,format=qcow2,file=app.img"
+# OPTS="$OPTS -device virtio-blk-pci,drive=disk0,bootindex=0"
+OPTS="$OPTS -drive file=app.disk,index=0,media=disk,format=raw"
 
 # The Fedora installer disk appears as an IDE CD-ROM in the guest. This is
 # the 2nd boot option.
