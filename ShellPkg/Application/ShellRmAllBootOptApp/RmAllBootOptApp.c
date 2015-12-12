@@ -13,10 +13,13 @@
 **/
 
 #include <Uefi.h>
+#include <Library/BaseMemoryLib.h>
 #include <Library/UefiApplicationEntryPoint.h>
 #include <Library/UefiLib.h>
 #include <Library/DebugLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
+#include <Library/MemoryAllocationLib.h>
+#include <Library/PrintLib.h>
 
 /**
   as the real entry point for the application.
@@ -36,12 +39,16 @@ UefiMain (
   )
 {
   EFI_STATUS            Status;
-  UINTN                 Length;
-  UINT16                Count;
-  UINT16                *Buffer = NULL;
+  UINTN                 Length = 0;
+  UINT16                Count = 0;
+  UINT16                *Buffer;
+  CHAR16                VariableName[12];
 
-  Print(L"Delete all entries in boot option list");
+  Buffer = NULL;
 
+  Print(L"\nDelete all entries in boot option list\n");
+
+  Buffer = AllocateZeroPool(Length+(4*sizeof(UINT16)));
   Status = gRT->GetVariable(
     (CHAR16*)L"BootOrder",
     (EFI_GUID*)&gEfiGlobalVariableGuid,
@@ -49,8 +56,37 @@ UefiMain (
     &Length,
     Buffer);
 
-  Count = (UINT16) (Length / sizeof(UINT16));
+  Print(L"Status: %r\n", Status);
+  if (Status == EFI_BUFFER_TOO_SMALL) {
+    Buffer = AllocateZeroPool(Length+(4*sizeof(UINT16)));
+    if (Buffer != NULL) {
+      Status = gRT->GetVariable(
+        (CHAR16*)L"BootOrder",
+        (EFI_GUID*)&gEfiGlobalVariableGuid,
+        NULL,
+        &Length,
+        Buffer);
+      Print(L"Status: %r\n", Status);
+    } else {
+      return EFI_OUT_OF_RESOURCES;
+    }
+  }
 
-  Print(L"Count: %d", Count);
+  Count = (UINT16) (Length / sizeof(Buffer[0]));
+
+  Print(L"Count: %d\n", Count);
+
+  for (INT8 Index = Count; Index >= 0; Index--) {
+     Print(L"Remove boot option: %d\n", Index);
+     UnicodeSPrint(VariableName, sizeof(VariableName), L"%s%04x", L"Boot", Index);
+     Status = gRT->SetVariable(
+       VariableName,
+       (EFI_GUID*)&gEfiGlobalVariableGuid,
+       EFI_VARIABLE_NON_VOLATILE|EFI_VARIABLE_BOOTSERVICE_ACCESS|EFI_VARIABLE_RUNTIME_ACCESS,
+       0,
+       NULL);
+   }
+
+  FreePool(Buffer);
   return EFI_SUCCESS;
 }
