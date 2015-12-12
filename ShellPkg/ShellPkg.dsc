@@ -97,6 +97,8 @@
       DxeServicesLib|MdePkg/Library/DxeServicesLib/DxeServicesLib.inf
   }
 
+  ShellPkg/Application/ShellRmAllBootOptApp/RmAllBootOptApp.inf
+
   ShellPkg/Application/Shell/Shell.inf {
     <LibraryClasses>
       NULL|ShellPkg/Library/UefiShellLevel2CommandsLib/UefiShellLevel2CommandsLib.inf
