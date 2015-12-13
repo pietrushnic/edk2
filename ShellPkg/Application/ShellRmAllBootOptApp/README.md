@@ -1,4 +1,4 @@
-**Disclaimer** : Using this software it potentially dangerous you use it at your own risk.
+**Disclaimer** : Using this software is potentially dangerous you use it at your own risk.
 
 Instructions
 ------------
